@@ -1,0 +1,37 @@
+on:
+  pull_request:
+    branches:
+      - main
+name: Pull Request Pipeline
+jobs:
+  pull_request_pipeline:
+    name: Pull Request Pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Cache node_modules
+        id: cache-modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: 18.x-${{ runner.OS }}-build-${{ hashFiles('package.json') }}
+
+      - name: NPM Install
+        if: steps.cache-modules.outputs.cache-hit != 'true'
+        run: npm install
+
+      - name: Lint
+        run: npm run-script lint
+
+      - name: Pretty
+        run: npm run-script prettier-check
+# Add test to the pipeline
+# - name: Test
+#   run: npm test
+
