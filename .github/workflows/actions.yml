@@ -31,9 +31,9 @@ jobs:
 
       - name: Pretty
         run: npm run-script prettier-check
-      # Add test to the pipeline
-      # - name: Test
-      #   run: npm test
+# complete the test coverage
+      - name: Test
+        run: npm test
 
       - name: Build
         run: npm run build
