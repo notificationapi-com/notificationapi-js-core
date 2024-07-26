@@ -2,10 +2,10 @@ on:
   pull_request:
     branches:
       - main
-name: Pull Request Pipeline
+name: pull_request_pipeline
 jobs:
   pull_request_pipeline:
-    name: Pull Request Pipeline
+    name: pull_request_pipeline
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -31,7 +31,6 @@ jobs:
 
       - name: Pretty
         run: npm run-script prettier-check
-# complete the test coverage
+      # complete the test coverage
       - name: Test
         run: npm test
-
