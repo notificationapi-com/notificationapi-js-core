@@ -42,31 +42,31 @@ export interface InAppNotification {
 }
 
 export interface WebSocket_NewNotification_Message {
-  route: "inapp_web/new_notifications";
+  route: 'inapp_web/new_notifications';
   payload: {
     notifications: InAppNotification[];
   };
 }
 
 export type Channels =
-  | "EMAIL"
-  | "INAPP_WEB"
-  | "SMS"
-  | "CALL"
-  | "PUSH"
-  | "WEB_PUSH";
+  | 'EMAIL'
+  | 'INAPP_WEB'
+  | 'SMS'
+  | 'CALL'
+  | 'PUSH'
+  | 'WEB_PUSH';
 
-export type BaseDeliveryOptions = "off" | "instant";
+export type BaseDeliveryOptions = 'off' | 'instant';
 
-export type DeliveryOptionsForInappWeb = "off" | "instant";
+export type DeliveryOptionsForInappWeb = 'off' | 'instant';
 
 export type DeliveryOptionsForEmail =
-  | "off"
-  | "instant"
-  | "hourly"
-  | "daily"
-  | "weekly"
-  | "monthly";
+  | 'off'
+  | 'instant'
+  | 'hourly'
+  | 'daily'
+  | 'weekly'
+  | 'monthly';
 
 export interface GetPreferencesResponse {
   preferences: {
@@ -82,7 +82,7 @@ export interface GetPreferencesResponse {
     notificationId: string;
     title: string;
     channels: Channels[];
-    options: NotificationConfig["options"];
+    options: NotificationConfig['options'];
   }[];
   subNotifications: {
     notificationId: string;
@@ -103,9 +103,9 @@ export interface NotificationConfig {
   throttling?: {
     max: number;
     period: number;
-    unit: "seconds" | "minutes" | "hours" | "days" | "months" | "years";
+    unit: 'seconds' | 'minutes' | 'hours' | 'days' | 'months' | 'years';
     forever: boolean;
-    scope: ["userId", "notificationId"];
+    scope: ['userId', 'notificationId'];
   };
   retention?: number;
   options?: {
@@ -135,7 +135,7 @@ export interface EmailDeliveryOptions {
   monthly?: {
     enabled: boolean;
     hour?: string;
-    date?: "first" | "last";
+    date?: 'first' | 'last';
   };
 }
 
