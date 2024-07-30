@@ -1,1 +1,1 @@
-export { NotificationAPIClientSDK } from "./client";
+export { NotificationAPIClientSDK } from './client';

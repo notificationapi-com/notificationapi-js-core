@@ -1,15 +1,15 @@
-import { api } from "./api";
+import { api } from './api';
 import {
   BaseDeliveryOptions,
   Channels,
   DeliveryOptionsForEmail,
-  DeliveryOptionsForInappWeb,
-} from "./interfaces";
+  DeliveryOptionsForInappWeb
+} from './interfaces';
 import {
   GetPreferencesResponse,
   InAppNotification,
-  WebSocket_NewNotification_Message,
-} from "./interfaces";
+  WebSocket_NewNotification_Message
+} from './interfaces';
 
 type NotificationAPIClientSDKConfig = {
   userId: string;
@@ -28,17 +28,17 @@ type NotificationAPIClientSDKConfig = {
 };
 
 const defaultConfig: NotificationAPIClientSDKConfig = {
-  host: "api.notificationapi.com",
-  websocketHost: "ws.notificationapi.com",
-  userId: "",
-  clientId: "",
-  hashedUserId: "",
+  host: 'api.notificationapi.com',
+  websocketHost: 'ws.notificationapi.com',
+  userId: '',
+  clientId: '',
+  hashedUserId: '',
   getInAppDefaultCount: 100,
   getInAppDefaultOldest: new Date(
     Date.now() - 30 * 24 * 60 * 60 * 1000
   ).toISOString(),
   onNewInAppNotifications: undefined,
-  keepWebSocketAliveForSeconds: 24 * 60 * 60, // 24 hours
+  keepWebSocketAliveForSeconds: 24 * 60 * 60 // 24 hours
 };
 
 type NotificationAPIClientSDK = {
@@ -51,7 +51,7 @@ type NotificationAPIClientSDK = {
   ): NotificationAPIClientSDK;
   rest: {
     generic(
-      method: "GET" | "POST" | "PATCH" | "DELETE",
+      method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
       resource: string,
       data?: any
     ): Promise<any>;
@@ -108,7 +108,7 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
   init: function (config) {
     this.config = { ...defaultConfig, ...config };
     return {
-      ...this,
+      ...this
     };
   },
   rest: {
@@ -125,27 +125,27 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
     },
     getNotifications: function (before, count) {
       return NotificationAPIClientSDK.rest.generic(
-        "GET",
+        'GET',
         `notifications/INAPP_WEB?count=${count}&before=${before}`
       );
     },
     patchNotifications: function (params) {
       return NotificationAPIClientSDK.rest.generic(
-        "PATCH",
-        "notifications/INAPP_WEB",
+        'PATCH',
+        'notifications/INAPP_WEB',
         params
       );
     },
     getPreferences: function () {
-      return NotificationAPIClientSDK.rest.generic("GET", "preferences");
+      return NotificationAPIClientSDK.rest.generic('GET', 'preferences');
     },
     postPreferences: function (params) {
       return NotificationAPIClientSDK.rest.generic(
-        "POST",
-        "preferences",
+        'POST',
+        'preferences',
         params
       );
-    },
+    }
   },
   websocket: {
     object: undefined,
@@ -161,7 +161,7 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
           return;
         }
 
-        if (body.route === "inapp_web/new_notifications") {
+        if (body.route === 'inapp_web/new_notifications') {
           const message = body as WebSocket_NewNotification_Message;
           if (NotificationAPIClientSDK.config.onNewInAppNotifications) {
             NotificationAPIClientSDK.config.onNewInAppNotifications(
@@ -179,15 +179,18 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
           callback(NotificationAPIClientSDK.websocket.object);
         }
       }
-    },
+    }
   },
   openWebSocket: function () {
     const websocket = NotificationAPIClientSDK.websocket.connect(() => {
-      setTimeout(() => {
-        this.websocket.disconnect(() => {
-          this.websocket.connect();
-        });
-      }, 9 * 60 * 1000);
+      setTimeout(
+        () => {
+          this.websocket.disconnect(() => {
+            this.websocket.connect();
+          });
+        },
+        9 * 60 * 1000
+      );
     });
     return websocket;
   },
@@ -233,14 +236,14 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
     return {
       items: result,
       hasMore,
-      oldestReceived,
+      oldestReceived
     };
   },
   updateInAppNotifications: async (params) => {
     const body: {
       [key: string]: any;
     } = {
-      trackingIds: params.ids,
+      trackingIds: params.ids
     };
 
     if (params.archived === true) {
@@ -266,5 +269,5 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
   },
   updateDeliveryOption: async (params) => {
     return NotificationAPIClientSDK.rest.postPreferences([params]);
-  },
+  }
 };

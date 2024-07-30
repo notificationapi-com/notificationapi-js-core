@@ -13,7 +13,7 @@ describe('NotificationAPIClientSDK', () => {
     const sdk = NotificationAPIClientSDK.init({
       userId: 'testUser',
       clientId: 'testClient',
-      hashedUserId: 'hashedTestUser',
+      hashedUserId: 'hashedTestUser'
     });
 
     expect(sdk.config.userId).toBe('testUser');
@@ -24,32 +24,34 @@ describe('NotificationAPIClientSDK', () => {
 
   test('getInAppNotifications should call api with correct parameters', async () => {
     const mockResponse = {
-      json: jest.fn().mockResolvedValue({ notifications: [] }),
+      json: jest.fn().mockResolvedValue({ notifications: [] })
     };
     (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
 
     const sdk = NotificationAPIClientSDK.init({
       userId: 'testUser',
-      clientId: 'testClient',
+      clientId: 'testClient'
     });
 
     await sdk.getInAppNotifications({ before: '2023-01-01T00:00:00Z' });
 
     expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining('notifications/INAPP_WEB?count=100&before=2023-01-01T00:00:00Z'),
+      expect.stringContaining(
+        'notifications/INAPP_WEB?count=100&before=2023-01-01T00:00:00Z'
+      ),
       expect.any(Object)
     );
   });
 
   test('updateInAppNotifications should call api with correct parameters', async () => {
     const mockResponse = {
-      json: jest.fn().mockResolvedValue({}),
+      json: jest.fn().mockResolvedValue({})
     };
     (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
 
     const sdk = NotificationAPIClientSDK.init({
       userId: 'testUser',
-      clientId: 'testClient',
+      clientId: 'testClient'
     });
 
     jest.useFakeTimers().setSystemTime(new Date('2024-07-26T17:37:54.333Z'));
@@ -57,7 +59,7 @@ describe('NotificationAPIClientSDK', () => {
     await sdk.updateInAppNotifications({
       ids: ['notification1', 'notification2'],
       archived: true,
-      clicked: true,
+      clicked: true
     });
 
     expect(global.fetch).toHaveBeenCalledWith(
@@ -67,11 +69,11 @@ describe('NotificationAPIClientSDK', () => {
         body: JSON.stringify({
           trackingIds: ['notification1', 'notification2'],
           archived: '2024-07-26T17:37:54.333Z',
-          clicked: '2024-07-26T17:37:54.333Z',
+          clicked: '2024-07-26T17:37:54.333Z'
         }),
         headers: {
-          Authorization: expect.any(String),
-        },
+          Authorization: expect.any(String)
+        }
       })
     );
 
@@ -80,13 +82,13 @@ describe('NotificationAPIClientSDK', () => {
 
   test('getPreferences should call api with correct parameters', async () => {
     const mockResponse = {
-      json: jest.fn().mockResolvedValue({ preferences: [] }),
+      json: jest.fn().mockResolvedValue({ preferences: [] })
     };
     (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
 
     const sdk = NotificationAPIClientSDK.init({
       userId: 'testUser',
-      clientId: 'testClient',
+      clientId: 'testClient'
     });
 
     await sdk.getPreferences();
@@ -94,26 +96,26 @@ describe('NotificationAPIClientSDK', () => {
     expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining('preferences'),
       expect.objectContaining({
-        method: 'GET',
+        method: 'GET'
       })
     );
   });
 
   test('updateDeliveryOption should call api with correct parameters', async () => {
     const mockResponse = {
-      json: jest.fn().mockResolvedValue({}),
+      json: jest.fn().mockResolvedValue({})
     };
     (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
 
     const sdk = NotificationAPIClientSDK.init({
       userId: 'testUser',
-      clientId: 'testClient',
+      clientId: 'testClient'
     });
 
     await sdk.updateDeliveryOption({
       notificationId: 'testNotification',
       channel: 'EMAIL',
-      delivery: 'instant',
+      delivery: 'instant'
     });
 
     expect(global.fetch).toHaveBeenCalledWith(
@@ -124,9 +126,9 @@ describe('NotificationAPIClientSDK', () => {
           {
             notificationId: 'testNotification',
             channel: 'EMAIL',
-            delivery: 'instant',
-          },
-        ]),
+            delivery: 'instant'
+          }
+        ])
       })
     );
   });
@@ -135,7 +137,7 @@ describe('NotificationAPIClientSDK', () => {
 describe('api function', () => {
   test('should make a fetch call with correct parameters', async () => {
     const mockResponse = {
-      json: jest.fn().mockResolvedValue({ data: 'testData' }),
+      json: jest.fn().mockResolvedValue({ data: 'testData' })
     };
     (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
 
@@ -153,8 +155,8 @@ describe('api function', () => {
       expect.objectContaining({
         method: 'GET',
         headers: {
-          Authorization: expect.stringContaining('Basic'),
-        },
+          Authorization: expect.stringContaining('Basic')
+        }
       })
     );
 
@@ -163,16 +165,17 @@ describe('api function', () => {
 
   test('should handle fetch errors', async () => {
     (global.fetch as jest.Mock).mockRejectedValueOnce('error');
-let result
-    try{ await api(
-      'GET',
-      'api.notificationapi.com',
-      'testResource',
-      'testClient',
-      'testUser'
-    );}
-    catch(e){
-      result=e
+    let result;
+    try {
+      await api(
+        'GET',
+        'api.notificationapi.com',
+        'testResource',
+        'testClient',
+        'testUser'
+      );
+    } catch (e) {
+      result = e;
     }
 
     expect(result).toEqual('error');

@@ -1,5 +1,5 @@
 export const api = async (
-  method: "GET" | "POST" | "PATCH" | "DELETE",
+  method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
   host: string,
   resource: string,
   clientId: string,
@@ -16,8 +16,8 @@ export const api = async (
       method,
       body: JSON.stringify(data),
       headers: {
-        Authorization: `Basic ${token}`,
-      },
+        Authorization: `Basic ${token}`
+      }
     }
   );
 
@@ -35,8 +35,8 @@ export const generateBasicTokenForUser = (
   hashedUserId?: string
 ) => {
   const token = hashedUserId
-    ? btoa(clientId + ":" + userId + ":" + hashedUserId)
-    : btoa(clientId + ":" + userId);
+    ? btoa(clientId + ':' + userId + ':' + hashedUserId)
+    : btoa(clientId + ':' + userId);
 
   return token;
 };

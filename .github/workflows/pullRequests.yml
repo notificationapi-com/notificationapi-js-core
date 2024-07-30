@@ -1,14 +1,16 @@
+name: pull_request_pipeline
+
 on:
   pull_request:
     branches:
       - main
-name: Pull Request Pipeline
 jobs:
   pull_request_pipeline:
-    name: Pull Request Pipeline
+    name: pull_request_pipeline
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Code
+        uses: actions/checkout@v2
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -22,16 +24,15 @@ jobs:
           path: node_modules
           key: 18.x-${{ runner.OS }}-build-${{ hashFiles('package.json') }}
 
-      - name: NPM Install
+      - name: Install Dependencies
         if: steps.cache-modules.outputs.cache-hit != 'true'
         run: npm install
 
       - name: Lint
-        run: npm run-script lint
+        run: npm run lint
 
-      - name: Pretty
-        run: npm run-script prettier-check
-# complete the test coverage
-      - name: Test
+      - name: Check Prettier
+        run: npm run prettier-check
+
+      - name: Run Tests
         run: npm test
-
