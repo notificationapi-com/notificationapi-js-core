@@ -150,9 +150,9 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
   websocket: {
     object: undefined,
     connect: function () {
-      let address = `wss://${NotificationAPIClientSDK.config.websocketHost}?userId=${NotificationAPIClientSDK.config.userId}&envId=${NotificationAPIClientSDK.config.clientId}`;
+      let address = `wss://${NotificationAPIClientSDK.config.websocketHost}?userId=${encodeURIComponent(NotificationAPIClientSDK.config.userId)}&envId=${NotificationAPIClientSDK.config.clientId}`;
       if (NotificationAPIClientSDK.config.hashedUserId) {
-        address += `&userIdHash=${NotificationAPIClientSDK.config.hashedUserId}`;
+        address += `&userIdHash=${encodeURIComponent(NotificationAPIClientSDK.config.hashedUserId)}`;
       }
       NotificationAPIClientSDK.websocket.object = new WebSocket(address);
       NotificationAPIClientSDK.websocket.object.onmessage = (m) => {
