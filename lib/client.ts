@@ -3,7 +3,8 @@ import {
   BaseDeliveryOptions,
   Channels,
   DeliveryOptionsForEmail,
-  DeliveryOptionsForInappWeb
+  DeliveryOptionsForInappWeb,
+  PostUserRequest
 } from './interfaces';
 import {
   GetPreferencesResponse,
@@ -69,6 +70,7 @@ type NotificationAPIClientSDK = {
           | BaseDeliveryOptions;
       }>
     ): Promise<any>;
+    postUser(params: PostUserRequest): Promise<any>;
   };
   websocket: {
     object: WebSocket | undefined;
@@ -101,6 +103,7 @@ type NotificationAPIClientSDK = {
       | BaseDeliveryOptions;
   }): Promise<void>;
   getPreferences(): Promise<GetPreferencesResponse>;
+  identify(params: PostUserRequest): Promise<void>;
 };
 
 export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
@@ -123,6 +126,11 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
         data
       );
     },
+
+    // The functions below are nice wrappers over the generic
+    // rest  api function above. They must follow REST API naming:
+    // Method + Resource, representing the end-point.
+
     getNotifications: function (before, count) {
       return NotificationAPIClientSDK.rest.generic(
         'GET',
@@ -145,6 +153,9 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
         'preferences',
         params
       );
+    },
+    postUser: function (params: PostUserRequest) {
+      return NotificationAPIClientSDK.rest.generic('POST', '', params);
     }
   },
   websocket: {
@@ -194,6 +205,11 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
     });
     return websocket;
   },
+
+  // These functions are developer friendly wrappers over the rest APIs
+  // They may or may not do additional tasks.
+  // e.g. identify simply maps to postUsers
+
   getInAppNotifications: async (params) => {
     const maxCountNeeded =
       params.maxCountNeeded ||
@@ -269,5 +285,13 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
   },
   updateDeliveryOption: async (params) => {
     return NotificationAPIClientSDK.rest.postPreferences([params]);
+  },
+  identify: async (params: PostUserRequest) => {
+    if (params.id && params.id !== NotificationAPIClientSDK.config.userId) {
+      throw new Error(
+        'The id in the parameters does not match the initialized userId.'
+      );
+    }
+    return NotificationAPIClientSDK.rest.postUser(params);
   }
 };
