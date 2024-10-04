@@ -154,3 +154,51 @@ export interface InAppWebDeliveryOptions {
     batchingWindow?: number;
   };
 }
+
+export interface User {
+  id: string;
+  email?: string;
+  number?: string;
+  pushTokens?: PushToken[];
+  webPushTokens?: WebPushToken[];
+  lastSeenTime?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export type PostUserRequest = Omit<
+  Partial<User>,
+  'lastSeenTime' | 'createdAt' | 'updatedAt'
+>;
+
+export interface PushToken {
+  type: PushProviders;
+  token: string;
+  device: Device;
+}
+
+export enum PushProviders {
+  FCM = 'FCM',
+  APN = 'APN'
+}
+
+export interface Device {
+  app_id?: string;
+  ad_id?: string;
+  device_id: string;
+  platform?: string;
+  manufacturer?: string;
+  model?: string;
+}
+
+export interface PushSubscription {
+  endpoint: string;
+  keys: {
+    p256dh: string;
+    auth: string;
+  };
+}
+
+export interface WebPushToken {
+  sub: PushSubscription;
+}
