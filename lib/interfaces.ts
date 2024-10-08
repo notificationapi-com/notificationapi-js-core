@@ -1,6 +1,7 @@
 export interface InAppNotification {
   id: string;
   notificationId: string;
+  subNotificationId?: string;
   seen: boolean;
   title: string;
   redirectURL?: string;
