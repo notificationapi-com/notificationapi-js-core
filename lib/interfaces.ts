@@ -203,3 +203,8 @@ export interface PushSubscription {
 export interface WebPushToken {
   sub: PushSubscription;
 }
+export interface UserAccountMetadata {
+  logo: string;
+  environmentVapidPublicKey: string;
+  hasWebPushEnabled: boolean;
+}

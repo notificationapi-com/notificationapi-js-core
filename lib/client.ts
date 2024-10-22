@@ -4,7 +4,8 @@ import {
   Channels,
   DeliveryOptionsForEmail,
   DeliveryOptionsForInappWeb,
-  PostUserRequest
+  PostUserRequest,
+  UserAccountMetadata
 } from './interfaces';
 import {
   GetPreferencesResponse,
@@ -71,6 +72,7 @@ type NotificationAPIClientSDK = {
       }>
     ): Promise<any>;
     postUser(params: PostUserRequest): Promise<any>;
+    getUserAccountMetadata(): Promise<UserAccountMetadata>;
   };
   websocket: {
     object: WebSocket | undefined;
@@ -104,6 +106,7 @@ type NotificationAPIClientSDK = {
   }): Promise<void>;
   getPreferences(): Promise<GetPreferencesResponse>;
   identify(params: PostUserRequest): Promise<void>;
+  getUserAccountMetadata(): Promise<UserAccountMetadata>;
 };
 
 export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
@@ -156,6 +159,9 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
     },
     postUser: function (params: PostUserRequest) {
       return NotificationAPIClientSDK.rest.generic('POST', '', params);
+    },
+    getUserAccountMetadata: function () {
+      return NotificationAPIClientSDK.rest.generic('GET', 'account_metadata');
     }
   },
   websocket: {
@@ -293,5 +299,8 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
       );
     }
     return NotificationAPIClientSDK.rest.postUser(params);
+  },
+  getUserAccountMetadata: async () => {
+    return NotificationAPIClientSDK.rest.getUserAccountMetadata();
   }
 };
