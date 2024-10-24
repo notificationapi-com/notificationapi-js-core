@@ -72,7 +72,9 @@ type NotificationAPIClientSDK = {
       }>
     ): Promise<any>;
     postUser(params: PostUserRequest): Promise<any>;
-    getUserAccountMetadata(): Promise<UserAccountMetadata>;
+    getUserAccountMetadata(): Promise<{
+      userAccountMetadata: UserAccountMetadata;
+    }>;
   };
   websocket: {
     object: WebSocket | undefined;
@@ -106,7 +108,9 @@ type NotificationAPIClientSDK = {
   }): Promise<void>;
   getPreferences(): Promise<GetPreferencesResponse>;
   identify(params: PostUserRequest): Promise<void>;
-  getUserAccountMetadata(): Promise<UserAccountMetadata>;
+  getUserAccountMetadata(): Promise<{
+    userAccountMetadata: UserAccountMetadata;
+  }>;
 };
 
 export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
