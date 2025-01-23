@@ -44,7 +44,7 @@ jobs:
         with:
           token: ${{ secrets.NPM_AUTH_TOKEN }}
 
-      - name: Send Slack notification
+      - name: Send Slack notification for Success
         if: steps.publish.outputs.type != 'none' && success()
         uses: 8398a7/action-slack@v3
         with:
@@ -55,7 +55,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_SUCCESS_WEBHOOK_URL }}
 
-      - name: Send Slack notification
+      - name: Send Slack notification for Failure
         if: steps.publish.outputs.type != 'none' && (failure() || cancelled())
         uses: 8398a7/action-slack@v3
         with:
