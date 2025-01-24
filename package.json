@@ -19,7 +19,7 @@
   "devDependencies": {
     "@types/node": "^20.14.10",
     "typescript": "^5.2.2",
-    "vite": "^5.3.1",
+    "vite": "^5.4.14",
     "vite-plugin-dts": "^3.9.1",
     "prettier": "^3.3.3",
     "@types/jest": "^29.5.3",
