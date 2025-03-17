@@ -1,6 +1,8 @@
+import { API_REGION } from './interfaces';
+
 export const api = async (
   method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
-  host: string,
+  host: string | API_REGION,
   resource: string,
   clientId: string,
   userId: string,
