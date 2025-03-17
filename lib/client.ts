@@ -1,11 +1,13 @@
 import { api } from './api';
 import {
+  API_REGION,
   BaseDeliveryOptions,
   Channels,
   DeliveryOptionsForEmail,
   DeliveryOptionsForInappWeb,
   PostUserRequest,
-  UserAccountMetadata
+  UserAccountMetadata,
+  WS_REGION
 } from './interfaces';
 import {
   GetPreferencesResponse,
@@ -17,14 +19,14 @@ type NotificationAPIClientSDKConfig = {
   userId: string;
   clientId: string;
   hashedUserId: string;
-  host: string;
+  host: string | API_REGION;
 
   // inapp notifications:
   getInAppDefaultCount: number;
   getInAppDefaultOldest: string;
 
   // Websocket:
-  websocketHost: string;
+  websocketHost: string | WS_REGION;
   keepWebSocketAliveForSeconds: number;
   onNewInAppNotifications?: (notifications: InAppNotification[]) => unknown;
 };

@@ -48,7 +48,17 @@ export interface WebSocket_NewNotification_Message {
     notifications: InAppNotification[];
   };
 }
+export enum API_REGION {
+  US = 'api.notificationapi.com',
+  EU = 'api.eu.notificationapi.com',
+  CA = 'api.ca.notificationapi.com'
+}
 
+export enum WS_REGION {
+  US = 'ws.notificationapi.com',
+  EU = 'ws.eu.notificationapi.com',
+  CA = 'ws.ca.notificationapi.com'
+}
 export type Channels =
   | 'EMAIL'
   | 'INAPP_WEB'
