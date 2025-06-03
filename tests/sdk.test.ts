@@ -273,6 +273,38 @@ describe('NotificationAPIClientSDK', () => {
     );
   });
 
+  test('updateDeliveryOption should support SLACK channel', async () => {
+    const mockResponse = {
+      json: jest.fn().mockResolvedValue({})
+    };
+    (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
+
+    const sdk = NotificationAPIClientSDK.init({
+      userId: 'testUser',
+      clientId: 'testClient'
+    });
+
+    await sdk.updateDeliveryOption({
+      notificationId: 'testSlackNotification',
+      channel: 'SLACK',
+      delivery: 'hourly'
+    });
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      expect.stringContaining('preferences'),
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify([
+          {
+            notificationId: 'testSlackNotification',
+            channel: 'SLACK',
+            delivery: 'hourly'
+          }
+        ])
+      })
+    );
+  });
+
   test('identify should call api with correct parameters', async () => {
     const mockResponse = {
       json: jest.fn().mockResolvedValue({ preferences: [] })
