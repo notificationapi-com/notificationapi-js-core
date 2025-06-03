@@ -65,7 +65,8 @@ export type Channels =
   | 'SMS'
   | 'CALL'
   | 'PUSH'
-  | 'WEB_PUSH';
+  | 'WEB_PUSH'
+  | 'SLACK';
 
 export type BaseDeliveryOptions = 'off' | 'instant';
 
@@ -126,6 +127,7 @@ export interface NotificationConfig {
     PUSH: PUSHDeliveryOptions;
     WEB_PUSH: WEB_PUSHDeliveryOptions;
     INAPP_WEB: InAppWebDeliveryOptions;
+    SLACK: SlackDeliveryOptions;
   };
 }
 
@@ -154,6 +156,7 @@ type SMSDeliveryOptions = EmailDeliveryOptions;
 type CALLDeliveryOptions = EmailDeliveryOptions;
 type PUSHDeliveryOptions = EmailDeliveryOptions;
 type WEB_PUSHDeliveryOptions = EmailDeliveryOptions;
+type SlackDeliveryOptions = EmailDeliveryOptions;
 
 export interface InAppWebDeliveryOptions {
   defaultDeliveryOption: DeliveryOptionsForInappWeb;
