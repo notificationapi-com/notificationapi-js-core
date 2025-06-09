@@ -40,14 +40,28 @@ export const api = async (
       logger.log('HTTP Response:', res);
     }
 
-    return await res.json();
+    try {
+      const responseData = await res.json();
+
+      if (logger) {
+        logger.log('Response Data:', responseData);
+      }
+
+      return responseData;
+    } catch (e) {
+      if (logger) {
+        logger.warn('Failed to parse response as JSON:', e);
+      }
+      return undefined;
+    }
   } catch (error) {
     const duration = Date.now() - startTime;
 
     if (logger) {
       logger.error('HTTP Request Failed:', {
         error,
-        duration: `${duration}ms`
+        duration: `${duration}ms`,
+        url
       });
     }
 
