@@ -25,7 +25,6 @@ export const api = async (
       method,
       host,
       url,
-      headers,
       body: data
     });
   }
@@ -63,8 +62,9 @@ export const api = async (
     if (logger) {
       logger.error('HTTP Request Failed:', {
         error,
-        duration: `${duration}ms`,
-        url
+        url,
+        headers,
+        duration: `${duration}ms`
       });
     }
 
