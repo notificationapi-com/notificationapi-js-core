@@ -1,4 +1,5 @@
 import { API_REGION } from './interfaces';
+import { Logger } from './logger';
 
 export const api = async (
   method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
@@ -8,15 +9,15 @@ export const api = async (
   userId: string,
   hashedUserId?: string,
   data?: any,
-  debug = false
+  logger?: Logger
 ): Promise<any> => {
   const token = generateBasicTokenForUser(clientId, userId, hashedUserId);
   const url = `https://${host}/${clientId}/users/${encodeURIComponent(
     userId
   )}/${resource}`;
 
-  if (debug) {
-    console.log('[NotificationAPI js core Debug] HTTP Request:', {
+  if (logger) {
+    logger.log('HTTP Request:', {
       method,
       url,
       hasBody: !!data,
@@ -37,8 +38,8 @@ export const api = async (
 
     const duration = Date.now() - startTime;
 
-    if (debug) {
-      console.log('[NotificationAPI js core Debug] HTTP Response:', {
+    if (logger) {
+      logger.log('HTTP Response:', {
         status: res.status,
         statusText: res.statusText,
         duration: `${duration}ms`,
@@ -49,28 +50,22 @@ export const api = async (
     try {
       const responseData = await res.json();
 
-      if (debug) {
-        console.log(
-          '[NotificationAPI js core Debug] Response Data:',
-          responseData
-        );
+      if (logger) {
+        logger.log('Response Data:', responseData);
       }
 
       return responseData;
     } catch (e) {
-      if (debug) {
-        console.log(
-          '[NotificationAPI js core Debug] Failed to parse response as JSON:',
-          e
-        );
+      if (logger) {
+        logger.warn('Failed to parse response as JSON:', e);
       }
       return undefined;
     }
   } catch (error) {
     const duration = Date.now() - startTime;
 
-    if (debug) {
-      console.log('[NotificationAPI js core Debug] HTTP Request Failed:', {
+    if (logger) {
+      logger.error('HTTP Request Failed:', {
         error,
         duration: `${duration}ms`,
         url

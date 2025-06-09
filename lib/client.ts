@@ -1,4 +1,5 @@
 import { api } from './api';
+import { Logger } from './logger';
 import {
   API_REGION,
   BaseDeliveryOptions,
@@ -34,13 +35,6 @@ type NotificationAPIClientSDKConfig = {
   debug: boolean;
 };
 
-// Debug logger utility
-const debugLog = (config: NotificationAPIClientSDKConfig, ...args: any[]) => {
-  if (config.debug) {
-    console.log('[NotificationAPI js core Debug]', ...args);
-  }
-};
-
 const defaultConfig: NotificationAPIClientSDKConfig = {
   host: 'api.notificationapi.com',
   websocketHost: 'ws.notificationapi.com',
@@ -58,6 +52,7 @@ const defaultConfig: NotificationAPIClientSDKConfig = {
 
 type NotificationAPIClientSDK = {
   config: NotificationAPIClientSDKConfig;
+  logger: Logger;
   init(
     config: Partial<NotificationAPIClientSDKConfig> & {
       userId: string;
@@ -128,28 +123,25 @@ type NotificationAPIClientSDK = {
 
 export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
   config: defaultConfig,
+  logger: new Logger(false),
   init: function (config) {
     this.config = { ...defaultConfig, ...config };
-    debugLog(
-      this.config,
-      'NotificationAPI js core SDK initialized with config:',
-      {
-        userId: this.config.userId,
-        clientId: this.config.clientId,
-        host: this.config.host,
-        websocketHost: this.config.websocketHost,
-        debug: this.config.debug,
-        hasHashedUserId: !!this.config.hashedUserId
-      }
-    );
+    this.logger = new Logger(this.config.debug);
+    this.logger.log('Initialized with config:', {
+      userId: this.config.userId,
+      clientId: this.config.clientId,
+      host: this.config.host,
+      websocketHost: this.config.websocketHost,
+      debug: this.config.debug,
+      hasHashedUserId: !!this.config.hashedUserId
+    });
     return {
       ...this
     };
   },
   rest: {
     generic: function (method, resource, data) {
-      debugLog(
-        NotificationAPIClientSDK.config,
+      NotificationAPIClientSDK.logger.log(
         `API Call: ${method} ${resource}`,
         data ? { body: data } : ''
       );
@@ -161,7 +153,7 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
         NotificationAPIClientSDK.config.userId,
         NotificationAPIClientSDK.config.hashedUserId,
         data,
-        NotificationAPIClientSDK.config.debug
+        NotificationAPIClientSDK.logger
       );
     },
 
@@ -206,39 +198,27 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
       if (NotificationAPIClientSDK.config.hashedUserId) {
         address += `&userIdHash=${encodeURIComponent(NotificationAPIClientSDK.config.hashedUserId)}`;
       }
-      debugLog(
-        NotificationAPIClientSDK.config,
-        'WebSocket connecting to:',
-        address
-      );
+      NotificationAPIClientSDK.logger.log('WebSocket connecting to:', address);
       NotificationAPIClientSDK.websocket.object = new WebSocket(address);
 
       NotificationAPIClientSDK.websocket.object.onopen = () => {
-        debugLog(
-          NotificationAPIClientSDK.config,
-          'WebSocket connection opened'
-        );
+        NotificationAPIClientSDK.logger.log('WebSocket connection opened');
       };
 
       NotificationAPIClientSDK.websocket.object.onclose = (event) => {
-        debugLog(
-          NotificationAPIClientSDK.config,
-          'WebSocket connection closed:',
-          {
-            code: event.code,
-            reason: event.reason,
-            wasClean: event.wasClean
-          }
-        );
+        NotificationAPIClientSDK.logger.log('WebSocket connection closed:', {
+          code: event.code,
+          reason: event.reason,
+          wasClean: event.wasClean
+        });
       };
 
       NotificationAPIClientSDK.websocket.object.onerror = (error) => {
-        debugLog(NotificationAPIClientSDK.config, 'WebSocket error:', error);
+        NotificationAPIClientSDK.logger.error('WebSocket error:', error);
       };
 
       NotificationAPIClientSDK.websocket.object.onmessage = (m) => {
-        debugLog(
-          NotificationAPIClientSDK.config,
+        NotificationAPIClientSDK.logger.log(
           'WebSocket message received:',
           m.data
         );
@@ -249,8 +229,7 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
 
         if (body.route === 'inapp_web/new_notifications') {
           const message = body as WebSocket_NewNotification_Message;
-          debugLog(
-            NotificationAPIClientSDK.config,
+          NotificationAPIClientSDK.logger.log(
             'New notifications received:',
             message.payload.notifications
           );
@@ -265,7 +244,7 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
     },
     disconnect: function (callback) {
       if (NotificationAPIClientSDK.websocket.object) {
-        debugLog(NotificationAPIClientSDK.config, 'WebSocket disconnecting');
+        NotificationAPIClientSDK.logger.log('WebSocket disconnecting');
         NotificationAPIClientSDK.websocket.object?.close();
         if (callback) {
           callback(NotificationAPIClientSDK.websocket.object);
@@ -292,8 +271,7 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
   // e.g. identify simply maps to postUsers
 
   getInAppNotifications: async (params) => {
-    debugLog(
-      NotificationAPIClientSDK.config,
+    NotificationAPIClientSDK.logger.log(
       'getInAppNotifications called with params:',
       params
     );
@@ -305,7 +283,7 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
       params.oldestNeeded ||
       NotificationAPIClientSDK.config.getInAppDefaultOldest;
 
-    debugLog(NotificationAPIClientSDK.config, 'Fetching notifications with:', {
+    NotificationAPIClientSDK.logger.log('Fetching notifications with:', {
       maxCountNeeded,
       oldestNeeded,
       before: params.before
@@ -319,7 +297,7 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
 
     while (shouldLoadMore) {
       fetchCount++;
-      debugLog(NotificationAPIClientSDK.config, `Fetch attempt ${fetchCount}`, {
+      NotificationAPIClientSDK.logger.log(`Fetch attempt ${fetchCount}`, {
         oldestReceived,
         resultCount: result.length
       });
@@ -333,8 +311,7 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
         (n) => !result.find((nn) => nn.id === n.id)
       );
 
-      debugLog(
-        NotificationAPIClientSDK.config,
+      NotificationAPIClientSDK.logger.log(
         `Received ${notis.length} notifications, ${notisWithoutDuplicates.length} unique`
       );
 
@@ -353,7 +330,7 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
         oldestReceived < oldestNeeded
       ) {
         shouldLoadMore = false;
-        debugLog(NotificationAPIClientSDK.config, 'Stopping fetch loop:', {
+        NotificationAPIClientSDK.logger.log('Stopping fetch loop:', {
           hasMore,
           totalResults: result.length,
           maxCountNeeded,
@@ -363,15 +340,11 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
       }
     }
 
-    debugLog(
-      NotificationAPIClientSDK.config,
-      'getInAppNotifications completed:',
-      {
-        totalItems: result.length,
-        hasMore,
-        oldestReceived
-      }
-    );
+    NotificationAPIClientSDK.logger.log('getInAppNotifications completed:', {
+      totalItems: result.length,
+      hasMore,
+      oldestReceived
+    });
 
     return {
       items: result,
@@ -380,8 +353,7 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
     };
   },
   updateInAppNotifications: async (params) => {
-    debugLog(
-      NotificationAPIClientSDK.config,
+    NotificationAPIClientSDK.logger.log(
       'updateInAppNotifications called with params:',
       params
     );
@@ -408,8 +380,7 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
       body.opened = null;
     }
 
-    debugLog(
-      NotificationAPIClientSDK.config,
+    NotificationAPIClientSDK.logger.log(
       'Updating notifications with body:',
       body
     );

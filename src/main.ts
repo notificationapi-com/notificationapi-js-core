@@ -3,6 +3,7 @@ import { NotificationAPIClientSDK } from '../lib/client';
 const client = NotificationAPIClientSDK.init({
   clientId: '24nojpnrsdc53fkslha0roov05',
   userId: 'sahand',
+  debug: true,
 
   // for websocket:
   onNewInAppNotifications: (notifications) => {
