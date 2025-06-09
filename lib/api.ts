@@ -16,11 +16,16 @@ export const api = async (
     userId
   )}/${resource}`;
 
+  const headers = {
+    Authorization: `Basic ${token}`
+  };
+
   if (logger) {
     logger.log('HTTP Request:', {
       method,
       host,
       url,
+      headers,
       body: data
     });
   }
@@ -31,9 +36,7 @@ export const api = async (
     const res = await fetch(url, {
       method,
       body: JSON.stringify(data),
-      headers: {
-        Authorization: `Basic ${token}`
-      }
+      headers
     });
 
     if (logger) {
