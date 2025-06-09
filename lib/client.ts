@@ -293,15 +293,8 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
     let oldestReceived = params.before;
     let hasMore = true;
     let shouldLoadMore = true;
-    let fetchCount = 0;
 
     while (shouldLoadMore) {
-      fetchCount++;
-      NotificationAPIClientSDK.logger.log(`Fetch attempt ${fetchCount}`, {
-        oldestReceived,
-        resultCount: result.length
-      });
-
       const res = await NotificationAPIClientSDK.rest.getNotifications(
         oldestReceived,
         maxCountNeeded

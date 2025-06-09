@@ -19,8 +19,8 @@ export const api = async (
   if (logger) {
     logger.log('HTTP Request:', {
       method,
+      host,
       url,
-      hasBody: !!data,
       body: data
     });
   }
@@ -36,39 +36,18 @@ export const api = async (
       }
     });
 
-    const duration = Date.now() - startTime;
-
     if (logger) {
-      logger.log('HTTP Response:', {
-        status: res.status,
-        statusText: res.statusText,
-        duration: `${duration}ms`,
-        url
-      });
+      logger.log('HTTP Response:', res);
     }
 
-    try {
-      const responseData = await res.json();
-
-      if (logger) {
-        logger.log('Response Data:', responseData);
-      }
-
-      return responseData;
-    } catch (e) {
-      if (logger) {
-        logger.warn('Failed to parse response as JSON:', e);
-      }
-      return undefined;
-    }
+    return await res.json();
   } catch (error) {
     const duration = Date.now() - startTime;
 
     if (logger) {
       logger.error('HTTP Request Failed:', {
         error,
-        duration: `${duration}ms`,
-        url
+        duration: `${duration}ms`
       });
     }
 
