@@ -29,6 +29,16 @@ type NotificationAPIClientSDKConfig = {
   websocketHost: string | WS_REGION;
   keepWebSocketAliveForSeconds: number;
   onNewInAppNotifications?: (notifications: InAppNotification[]) => unknown;
+
+  // Debug mode:
+  debug: boolean;
+};
+
+// Debug logger utility
+const debugLog = (config: NotificationAPIClientSDKConfig, ...args: any[]) => {
+  if (config.debug) {
+    console.log('[NotificationAPI js core Debug]', ...args);
+  }
 };
 
 const defaultConfig: NotificationAPIClientSDKConfig = {
@@ -42,7 +52,8 @@ const defaultConfig: NotificationAPIClientSDKConfig = {
     Date.now() - 30 * 24 * 60 * 60 * 1000
   ).toISOString(),
   onNewInAppNotifications: undefined,
-  keepWebSocketAliveForSeconds: 24 * 60 * 60 // 24 hours
+  keepWebSocketAliveForSeconds: 24 * 60 * 60, // 24 hours
+  debug: false
 };
 
 type NotificationAPIClientSDK = {
@@ -119,12 +130,29 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
   config: defaultConfig,
   init: function (config) {
     this.config = { ...defaultConfig, ...config };
+    debugLog(
+      this.config,
+      'NotificationAPI js core SDK initialized with config:',
+      {
+        userId: this.config.userId,
+        clientId: this.config.clientId,
+        host: this.config.host,
+        websocketHost: this.config.websocketHost,
+        debug: this.config.debug,
+        hasHashedUserId: !!this.config.hashedUserId
+      }
+    );
     return {
       ...this
     };
   },
   rest: {
     generic: function (method, resource, data) {
+      debugLog(
+        NotificationAPIClientSDK.config,
+        `API Call: ${method} ${resource}`,
+        data ? { body: data } : ''
+      );
       return api(
         method,
         NotificationAPIClientSDK.config.host,
@@ -132,7 +160,8 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
         NotificationAPIClientSDK.config.clientId,
         NotificationAPIClientSDK.config.userId,
         NotificationAPIClientSDK.config.hashedUserId,
-        data
+        data,
+        NotificationAPIClientSDK.config.debug
       );
     },
 
@@ -177,8 +206,42 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
       if (NotificationAPIClientSDK.config.hashedUserId) {
         address += `&userIdHash=${encodeURIComponent(NotificationAPIClientSDK.config.hashedUserId)}`;
       }
+      debugLog(
+        NotificationAPIClientSDK.config,
+        'WebSocket connecting to:',
+        address
+      );
       NotificationAPIClientSDK.websocket.object = new WebSocket(address);
+
+      NotificationAPIClientSDK.websocket.object.onopen = () => {
+        debugLog(
+          NotificationAPIClientSDK.config,
+          'WebSocket connection opened'
+        );
+      };
+
+      NotificationAPIClientSDK.websocket.object.onclose = (event) => {
+        debugLog(
+          NotificationAPIClientSDK.config,
+          'WebSocket connection closed:',
+          {
+            code: event.code,
+            reason: event.reason,
+            wasClean: event.wasClean
+          }
+        );
+      };
+
+      NotificationAPIClientSDK.websocket.object.onerror = (error) => {
+        debugLog(NotificationAPIClientSDK.config, 'WebSocket error:', error);
+      };
+
       NotificationAPIClientSDK.websocket.object.onmessage = (m) => {
+        debugLog(
+          NotificationAPIClientSDK.config,
+          'WebSocket message received:',
+          m.data
+        );
         const body = JSON.parse(m.data);
         if (!body || !body.route) {
           return;
@@ -186,6 +249,11 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
 
         if (body.route === 'inapp_web/new_notifications') {
           const message = body as WebSocket_NewNotification_Message;
+          debugLog(
+            NotificationAPIClientSDK.config,
+            'New notifications received:',
+            message.payload.notifications
+          );
           if (NotificationAPIClientSDK.config.onNewInAppNotifications) {
             NotificationAPIClientSDK.config.onNewInAppNotifications(
               message.payload.notifications
@@ -197,6 +265,7 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
     },
     disconnect: function (callback) {
       if (NotificationAPIClientSDK.websocket.object) {
+        debugLog(NotificationAPIClientSDK.config, 'WebSocket disconnecting');
         NotificationAPIClientSDK.websocket.object?.close();
         if (callback) {
           callback(NotificationAPIClientSDK.websocket.object);
@@ -223,6 +292,12 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
   // e.g. identify simply maps to postUsers
 
   getInAppNotifications: async (params) => {
+    debugLog(
+      NotificationAPIClientSDK.config,
+      'getInAppNotifications called with params:',
+      params
+    );
+
     const maxCountNeeded =
       params.maxCountNeeded ||
       NotificationAPIClientSDK.config.getInAppDefaultCount;
@@ -230,11 +305,25 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
       params.oldestNeeded ||
       NotificationAPIClientSDK.config.getInAppDefaultOldest;
 
+    debugLog(NotificationAPIClientSDK.config, 'Fetching notifications with:', {
+      maxCountNeeded,
+      oldestNeeded,
+      before: params.before
+    });
+
     let result: InAppNotification[] = [];
     let oldestReceived = params.before;
     let hasMore = true;
     let shouldLoadMore = true;
+    let fetchCount = 0;
+
     while (shouldLoadMore) {
+      fetchCount++;
+      debugLog(NotificationAPIClientSDK.config, `Fetch attempt ${fetchCount}`, {
+        oldestReceived,
+        resultCount: result.length
+      });
+
       const res = await NotificationAPIClientSDK.rest.getNotifications(
         oldestReceived,
         maxCountNeeded
@@ -243,6 +332,12 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
       const notisWithoutDuplicates = notis.filter(
         (n) => !result.find((nn) => nn.id === n.id)
       );
+
+      debugLog(
+        NotificationAPIClientSDK.config,
+        `Received ${notis.length} notifications, ${notisWithoutDuplicates.length} unique`
+      );
+
       oldestReceived = notisWithoutDuplicates.reduce(
         (min: string, n) => (min < n.date ? min : n.date),
         params.before
@@ -258,8 +353,25 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
         oldestReceived < oldestNeeded
       ) {
         shouldLoadMore = false;
+        debugLog(NotificationAPIClientSDK.config, 'Stopping fetch loop:', {
+          hasMore,
+          totalResults: result.length,
+          maxCountNeeded,
+          oldestReceived,
+          oldestNeeded
+        });
       }
     }
+
+    debugLog(
+      NotificationAPIClientSDK.config,
+      'getInAppNotifications completed:',
+      {
+        totalItems: result.length,
+        hasMore,
+        oldestReceived
+      }
+    );
 
     return {
       items: result,
@@ -268,6 +380,12 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
     };
   },
   updateInAppNotifications: async (params) => {
+    debugLog(
+      NotificationAPIClientSDK.config,
+      'updateInAppNotifications called with params:',
+      params
+    );
+
     const body: {
       [key: string]: any;
     } = {
@@ -290,6 +408,11 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
       body.opened = null;
     }
 
+    debugLog(
+      NotificationAPIClientSDK.config,
+      'Updating notifications with body:',
+      body
+    );
     return NotificationAPIClientSDK.rest.patchNotifications(body);
   },
   getPreferences: async () => {
