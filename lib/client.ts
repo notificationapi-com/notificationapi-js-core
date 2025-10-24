@@ -452,7 +452,6 @@ export const NotificationAPIClientSDK: NotificationAPIClientSDK = {
         'GET',
         'slack/channels'
       );
-      console.log(response);
       return response;
     },
     setChannel: async (channelId: string) => {
