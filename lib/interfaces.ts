@@ -178,7 +178,63 @@ export interface User {
   lastSeenTime?: string;
   createdAt?: string;
   updatedAt?: string;
+  slackChannel?: string;
+  slackToken?: OauthV2AccessResponse;
 }
+
+interface WebAPICallResult {
+  ok: boolean;
+  error?: string;
+  response_metadata?: {
+    warnings?: string[];
+    next_cursor?: string;
+    scopes?: string[];
+    acceptedScopes?: string[];
+    retryAfter?: number;
+    messages?: string[];
+  };
+}
+
+interface AuthedUser {
+  access_token?: string;
+  expires_in?: number;
+  id?: string;
+  refresh_token?: string;
+  scope?: string;
+  token_type?: string;
+}
+
+interface Enterprise {
+  id?: string;
+  name?: string;
+}
+
+export interface IncomingWebhook {
+  channel?: string;
+  channel_id?: string;
+  configuration_url?: string;
+  url?: string;
+}
+
+type OauthV2AccessResponse = WebAPICallResult & {
+  access_token?: string;
+  app_id?: string;
+  authed_user?: AuthedUser;
+  bot_user_id?: string;
+  enterprise?: Enterprise;
+  error?: string;
+  expires_in?: number;
+  incoming_webhook?: IncomingWebhook;
+  is_enterprise_install?: boolean;
+  needed?: string;
+  ok?: boolean;
+  provided?: string;
+  refresh_token?: string;
+  scope?: string;
+  team?: Enterprise;
+  token_type?: string;
+  warning?: string;
+};
 
 export type PostUserRequest = Omit<
   Partial<User>,
