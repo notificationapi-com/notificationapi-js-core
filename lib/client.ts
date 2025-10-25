@@ -7,6 +7,8 @@ import {
   DeliveryOptionsForEmail,
   DeliveryOptionsForInappWeb,
   PostUserRequest,
+  SlackChannel,
+  SlackUser,
   User,
   UserAccountMetadata,
   WS_REGION
@@ -130,8 +132,8 @@ type NotificationAPIClientSDK = {
   slack: {
     getOAuthUrl: (props?: { destinationUrl?: string }) => string;
     getChannels: () => Promise<{
-      channels: Record<string, string>;
-      users: Record<string, string>;
+      channels: SlackChannel[];
+      users: SlackUser[];
     }>;
     setChannel: (channelId: string) => Promise<void>;
   };
