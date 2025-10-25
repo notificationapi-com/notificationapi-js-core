@@ -130,10 +130,8 @@ type NotificationAPIClientSDK = {
   slack: {
     getOAuthUrl: (props?: { destinationUrl?: string }) => string;
     getChannels: () => Promise<{
-      channels: {
-        id: string;
-        name: string;
-      }[];
+      channels: Record<string, string>;
+      users: Record<string, string>;
     }>;
     setChannel: (channelId: string) => Promise<void>;
   };
