@@ -134,6 +134,7 @@ type NotificationAPIClientSDK = {
     getChannels: () => Promise<{
       channels: SlackChannel[];
       users: SlackUser[];
+      me: SlackUser;
     }>;
     setChannel: (channelId: string) => Promise<void>;
   };
