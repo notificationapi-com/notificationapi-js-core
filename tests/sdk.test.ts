@@ -370,6 +370,28 @@ describe('NotificationAPIClientSDK', () => {
       })
     );
   });
+  test('slack.getChannels should return hasMoreChannels and hasMoreUsers from API', async () => {
+    const mockResponse = {
+      json: jest.fn().mockResolvedValue({
+        channels: [{ id: 'C123', name: 'general' }],
+        users: [{ id: 'U123', name: 'alice' }],
+        me: { id: 'U123', name: 'alice' },
+        hasMoreChannels: true,
+        hasMoreUsers: false
+      })
+    };
+    (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
+
+    const sdk = NotificationAPIClientSDK.init({
+      userId: 'testUser',
+      clientId: 'testClient'
+    });
+
+    const result = await sdk.slack.getChannels();
+
+    expect(result.hasMoreChannels).toBe(true);
+    expect(result.hasMoreUsers).toBe(false);
+  });
 });
 
 describe('api function', () => {
