@@ -135,6 +135,8 @@ type NotificationAPIClientSDK = {
       channels: SlackChannel[];
       users: SlackUser[];
       me: SlackUser;
+      hasMoreChannels?: boolean;
+      hasMoreUsers?: boolean;
     }>;
     setChannel: (channelId: string) => Promise<void>;
   };
