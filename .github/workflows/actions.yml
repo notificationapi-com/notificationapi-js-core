@@ -10,6 +10,8 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      actions: read
+
     steps:
       - uses: actions/checkout@v4
 
@@ -42,7 +44,7 @@ jobs:
         run: npm run build
 
       - name: Update npm
-        run: npm install -g npm@latest
+        run: npm install -g npm@11.18.0
 
       - name: Publish
         id: publish
